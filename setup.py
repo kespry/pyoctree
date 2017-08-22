@@ -17,7 +17,7 @@ here = path.abspath(path.dirname(__file__))
 def readme():
     with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
         return f.read()
-        
+
 # find the version
 exec(open(path.join('pyoctree','version.py')).read())
 
@@ -30,35 +30,36 @@ else:
 
 cmdclass    = {}
 ext_modules = []
-if use_cython:  
+if use_cython:
     ext_modules += [ Extension("pyoctree.pyoctree", sources=["pyoctree/pyoctree.pyx","pyoctree/cOctree.cpp"],include_dirs=[numpy.get_include()],language="c++")]
     cmdclass.update({ 'build_ext':build_ext })
 else:
     ext_modules += [ Extension("pyoctree.pyoctree", sources=["pyoctree/pyoctree.cpp","pyoctree/cOctree.cpp"],include_dirs=[numpy.get_include()],language="c++")]
-    
+
 setup(
     name = 'pyoctree',
     version = __version__,
     description = 'Octree structure containing 3D triangular mesh model',
     long_description = readme(),
     license = 'MIT license',
-    keywords = ["octree","triangle","mesh","python","cython"],    
+    keywords = ["octree","triangle","mesh","python","cython"],
     author = 'Michael Hogg',
     author_email = 'michael.christopher.hogg@gmail.com',
     url = "https://github.com/mhogg/pyoctree",
-    download_url = "https://github.com/mhogg/pyoctree/releases", 
+    download_url = "https://github.com/mhogg/pyoctree/releases",
     packages = ['','pyoctree'],
     package_data = {'':['LICENSE.txt','README.md','setup.py','Examples/*']},
     classifiers = [
-        "Programming Language :: Python",                                  
-        "Programming Language :: Cython",         
+        "Programming Language :: Python",
+        "Programming Language :: Cython",
         "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",                                                   
-        "Development Status :: 4 - Beta",                                  
-        "Environment :: Other Environment", 
-        "License :: OSI Approved :: MIT License", 
-        "Operating System :: OS Independent",     
+        "Programming Language :: Python :: 2.7",
+        "Development Status :: 4 - Beta",
+        "Environment :: Other Environment",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
         ],
     ext_modules = ext_modules,
     cmdclass = cmdclass,
+    install_requires = ["numpy"]
 )
