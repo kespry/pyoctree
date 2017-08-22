@@ -8,7 +8,6 @@ from setuptools import setup
 from setuptools.extension import Extension
 from codecs import open
 from os import path
-import numpy
 
 # get current path
 here = path.abspath(path.dirname(__file__))
@@ -22,19 +21,27 @@ def readme():
 exec(open(path.join('pyoctree','version.py')).read())
 
 try:
-    from Cython.Distutils import build_ext
+    from Cython.Distutils import build_ext_parent
 except ImportError:
+    from setuptools.command.build_ext import build_ext as build_ext_parent
     use_cython = False
 else:
     use_cython = True
 
-cmdclass    = {}
+class build_ext(build_ext_parent):
+    def finalize_options(self):
+        build_ext_parent.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+
+cmdclass    = { "build_ext": build_ext }
 ext_modules = []
 if use_cython:
-    ext_modules += [ Extension("pyoctree.pyoctree", sources=["pyoctree/pyoctree.pyx","pyoctree/cOctree.cpp"],include_dirs=[numpy.get_include()],language="c++")]
-    cmdclass.update({ 'build_ext':build_ext })
+    ext_modules += [ Extension("pyoctree.pyoctree", sources=["pyoctree/pyoctree.pyx","pyoctree/cOctree.cpp"],language="c++")]
 else:
-    ext_modules += [ Extension("pyoctree.pyoctree", sources=["pyoctree/pyoctree.cpp","pyoctree/cOctree.cpp"],include_dirs=[numpy.get_include()],language="c++")]
+    ext_modules += [ Extension("pyoctree.pyoctree", sources=["pyoctree/pyoctree.cpp","pyoctree/cOctree.cpp"],language="c++")]
 
 setup(
     name = 'pyoctree',
@@ -61,5 +68,6 @@ setup(
         ],
     ext_modules = ext_modules,
     cmdclass = cmdclass,
-    install_requires = ["numpy"]
+    setup_requires = ["numpy"],
+    install_requires = ["numpy",]
 )
